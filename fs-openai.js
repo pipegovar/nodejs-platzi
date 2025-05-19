@@ -1,3 +1,5 @@
+// Versión paga
+const { error } = require('console');
 const fs = require('fs');
 const path = require('path');
 
@@ -12,9 +14,9 @@ async function transcribeAudio(audioFilePath, apiKey) {
         const blob = new Blob(audioFile);
 
         formData.append('file', blob, path.basename(audioFilePath));
-        formData.append('model', 'wwhisper-1');
+        formData.append('model', 'whisper-1');
 
-        const response = await fetch('https://api.openai.com/v1/audio/transciptions', 
+        const response = await fetch('https://api.openai.com/v1/audio/transcriptions', 
                {
           method: 'POST',
           headers: {
@@ -31,7 +33,7 @@ async function transcribeAudio(audioFilePath, apiKey) {
         const data = await response.json();
         const transciption = data.text;
 
-        const outputFilePath = path.join(path.dirname(audioFile), `${path.basename
+        const outputFilePath = path.join(path.dirname(audioFilePath), `${path.basename
         (audioFilePath, path.extname(audioFilePath))}_transcription.txt`);
 
         fs.writeFileSync(outputFilePath, transciption);
@@ -42,3 +44,15 @@ async function transcribeAudio(audioFilePath, apiKey) {
       throw error;
     }
 }
+
+const audioPath = './audio.mp3';
+const openaiApiKey = 'XXXXXXXXXXXXXXXXXXXXXX'
+
+transcribeAudio(audioPath, openaiApiKey)
+ .then(transcription => {
+    console.log('Transcripción completada con exito');
+    console.log(transcription);
+ })
+ .catch(error => {
+    console.error('Fallo la transcripción', error);
+ });
